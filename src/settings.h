@@ -9,9 +9,20 @@
 #ifndef settings_h
 #define settings_h
 
-#define LOOPLED 13
+#define CPU_PRESCALE(n)	(CLKPR = 0x80, CLKPR = (n))
+
 #define TIMER0_STARTWERT   0x40
 
+#define LOOPLEDDDR          DDRF    //DDRD
+#define LOOPLEDPORT         PORTF   //PORTD
+#define LOOPLED             6       //6 
+
+#define TASTENDDR           DDRF
+#define TASTENPORT          PORTF
+#define TASTENPIN             PINF
+
+#define TASTE0				0   // HALT-PIN Motor A
+#define TASTE1				1
 
 // Stepper A
 
@@ -46,7 +57,21 @@
 #define END_C0_PIN         16          // Anschlagstatus:  Bit fuer Endanschlag bei C0
 #define END_D0_PIN         17         // Anschlagstatus:  Bit fuer Endanschlag bei D0
 
+// SPI
+#define OSZIPORT           PORTD
+#define OSZIPORTDDR        DDRD
+#define OSZIPORTPIN        PIND
+#define OSZI_PULS_A        0
+#define OSZI_PULS_B        1
 
+#define OSZIALO OSZIPORT &= ~(1<<OSZI_PULS_A)
+#define OSZIAHI OSZIPORT |= (1<<OSZI_PULS_A)
+#define OSZIATOG OSZIPORT ^= (1<<OSZI_PULS_A)
+
+#define OSZIBLO OSZIPORT &= ~(1<<OSZI_PULS_B)
+#define OSZIBHI OSZIPORT |= (1<<OSZI_PULS_B)
+#define OSZIBTOG OSZIPORT ^= (1<<OSZI_PULS_B)
+// SPI
 
 
 //#define TASTE0            0   // HALT-Bit Motor A
@@ -69,6 +94,15 @@
 // Auf Stepperport 2
 #define END_C0          6       //  Bit fuer Endanschlag C0 
 #define END_D0          7       //           Endanschlag D0 
+
+// auf Stepperport 1
+#define END_A0_PIN          4       //  PIN fuer Endanschlag A0 
+#define END_B0_PIN          5 		//           Endanschlag B0 
+
+
+// Auf Stepperport 2
+#define END_C0_PIN          6       //  PIN fuer Endanschlag C0 
+#define END_D0_PIN          7 		//           Endanschlag D0 
 
 
 #define RICHTUNG_A   0

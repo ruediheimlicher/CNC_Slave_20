@@ -1135,7 +1135,7 @@ void thread_func(int inc)
    */
 }
 
-ADC *adc = new ADC(); // adc object;
+//ADC *adc = new ADC(); // adc object;
 
 uint8_t Tastenwahl(uint16_t Tastaturwert)
 {
@@ -1174,7 +1174,7 @@ uint8_t Tastenwahl(uint16_t Tastaturwert)
 
 uint16_t readTastatur(void)
 {
-   uint16_t adctastenwert = adc->adc0->analogRead(TASTATURPIN);
+   uint16_t adctastenwert = 0; //->adc0->analogRead(TASTATURPIN);
    if (adctastenwert > 10)
    {
       //Serial.printf("readTastatur adctastenwert: %d\n",adctastenwert);
@@ -1496,10 +1496,12 @@ void setup()
 
 // https://registry.platformio.org/libraries/pedvide/Teensy_ADC/examples/analogRead/analogRead.ino
    pinMode(TASTATURPIN , INPUT);
+   /*
    adc->adc0->setAveraging(4); // set number of averages
    adc->adc0->setResolution(8);
    adc->adc0->setConversionSpeed(ADC_CONVERSION_SPEED::HIGH_SPEED);
    adc->adc0->setSamplingSpeed(ADC_SAMPLING_SPEED::HIGH_SPEED);
+   */
    pinMode(DC_PWM, OUTPUT);
    // digitalWriteFast(DC_PWM, HIGH); // OFF
    digitalWriteFast(DC_PWM, 1);
