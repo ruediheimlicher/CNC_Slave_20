@@ -1,7 +1,7 @@
 
 
 ///
-/// @mainpage   Stepper41
+/// @mainpage   Stepper20
 ///
 /// @details   Description of the project
 /// @n
@@ -20,13 +20,6 @@
 ///
 
 ///
-/// @file      Stepper32.ino
-/// @brief      Main sketch
-///
-/// @details   <#details#>
-/// @n @a      Developed with [embedXcode+](https://embedXcode.weebly.com)
-///
-/// @author      Ruedi Heimlicher
 /// @author      Ruedi Heimlicher
 /// @date      06.05.2020 21:02
 /// @version   <#version#>
@@ -52,8 +45,8 @@
 
 
 // von VS_RobotAuto_T
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+//#include <Adafruit_GFX.h>
+//#include <Adafruit_SSD1306.h>
 #include <LiquidCrystal_I2C.h>
 #include "main.h"
 #include "display.h"
@@ -62,7 +55,7 @@
  #include "lcd.h"
 #include "settings.h"
 
-#include <ADC.h>
+//#include <ADC.h>
 // https://registry.platformio.org/libraries/adafruit/Adafruit%20SSD1327/examples/ssd1327_test/ssd1327_test.ino
 
 //#include <MUIU8g2.h>
