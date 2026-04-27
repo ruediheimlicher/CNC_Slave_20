@@ -51,8 +51,8 @@
 #include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
 #include "main.h"
-#include "display.h"
-#include "font.h"
+//#include "display.h"
+//#include "font.h"
 
  #include "lcd.h"
 #include "settings.h"
@@ -82,7 +82,7 @@ const int colorB = 0;
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 #define SCREEN_ADDRESS 0x3C
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+//Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 
 
@@ -293,7 +293,7 @@ int16_t lastdax = 0; // letzte Werte fuer schritte x, y. Fuer berechnung gradien
 int16_t lastday = 0;
 
 // Create an IntervalTimer object
-IntervalTimer delayTimer;
+//IntervalTimer delayTimer;
 
 uint16_t errarray[1024];
 uint16_t errpos = 0;
@@ -307,7 +307,7 @@ canal_struct indata;
 
 
 // ADC
-#define TASTATURPIN  A9
+#define TASTATURPIN  PF0
 
 uint16_t tastenwert = 0;
 uint8_t Taste = 0;
@@ -411,12 +411,46 @@ void OSZI_D_HI(void)
 
 void startTimer2(void)
 {
-   timerstatus |= (1 << TIMER_ON);
+   timerstatus |= (1<<TIMER_ON);
+   //timer2
+   TCNT2   = 0; 
+   //   TCCR2A |= (1 << WGM21);    // Configure timer 2 for CTC mode 
+   TCCR2B |= (1 << CS20);     // Start timer at Fcpu/8 
+   //   TIMSK2 |= (1 << OCIE2A);   // Enable CTC interrupt 
+   TIMSK2 |= (1 << TOIE2);    // Enable OV interrupt 
+   //OCR2A   = 5;             // Set CTC compare value with a prescaler of 64 
+   TCCR2A = 0x00;
+   
+   sei();
 }
 
 void stopTimer2(void)
 {
-   timerstatus &= ~(1 << TIMER_ON);
+   TCCR2B = 0;
+   timerstatus &= ~(1<<TIMER_ON);
+}
+
+void timer1(uint16_t timerintervall)
+{
+
+}
+
+ISR(TIMER1_COMPA_vect) 
+{
+   if (timerstatus & (1 << TIMER_ON))
+   {
+      // OSZIA_LO(); // 100us
+
+      if (bres_delayA)
+      {
+         bres_delayA -= 1;
+      }
+
+      if (bres_delayB)
+      {
+         bres_delayB -= 1;
+      }
+   }
 }
 
 void delaytimerfunction(void) // 1us ohne ramp
@@ -438,6 +472,8 @@ void delaytimerfunction(void) // 1us ohne ramp
    }
    // OSZIA_HI();
 }
+
+
 
 // MARK: mark AbschnittLaden_bres
 uint8_t AbschnittLaden_bres(uint8_t *AbschnittDaten) // 22us
@@ -743,7 +779,7 @@ uint8_t AbschnittLaden_bres(uint8_t *AbschnittDaten) // 22us
       rampstatus |= (1 << RAMPSTARTBIT); // Ramp an Start
       errpos = 0;
       ramptimerintervall += (ramptimerintervall / 4 * 3);
-      delayTimer.update(ramptimerintervall);
+      //delayTimer.update(ramptimerintervall);
    }
 
    xA = StepCounterA; //
@@ -1614,8 +1650,8 @@ lcd.begin(20,4);               // initialize the lcd
 
    //// lcd.setCursor(0,0);
    //// lcd.print("hallo");
-   delayTimer.begin(delaytimerfunction, timerintervall);
-   delayTimer.priority(0);
+   //delayTimer.begin(delaytimerfunction, timerintervall);
+   //delayTimer.priority(0);
 
    //   threads.addThread(thread_func, 1);
 
@@ -1813,54 +1849,19 @@ void loop()
 
 
 
-      //if (tastaturstatus == 0xF0)
-      {
-         sendbuffer[0] = 0xB8;
-         sendbuffer[59] = tastaturcounter++;
-         sendbuffer[57] = tastenwert;
-         sendbuffer[58] = Taste;
+         //if (tastaturstatus == 0xF0)
+         {
+            sendbuffer[0] = 0xB8;
+            sendbuffer[59] = tastaturcounter++;
+            sendbuffer[57] = tastenwert;
+            sendbuffer[58] = Taste;
 
-         //uint8_t senderfolg = usb_rawhid_send((void *)sendbuffer, 10);
-         //uint8_t senderfolg = RawHID.send(sendbuffer, 10);
-      }
+            //uint8_t senderfolg = usb_rawhid_send((void *)sendbuffer, 10);
+            //uint8_t senderfolg = RawHID.send(sendbuffer, 10);
+         }
          // OLED
          //Serial.printf("LED ON\n");
          digitalWriteFast(LOOPLED, 0);
-         /*
-          //Serial.printf("blink\t %d\n",loopLED);
-          // lcd.setCursor(0,0);
-          // lcd.print("hallo");
-          // lcd.print(String(timer2Counter));
-          // lcd.setCursor(10,0);
-          // lcd.print(String(usb_recv_counter));
-
-          // lcd.setCursor(16,0);
-          // lcd.print(String(abschnittnummer));
-          // lcd.setCursor(0,1);
-          // lcd.print(String(CounterA&0xFF));
-          // lcd.setCursor(4,1);
-          // lcd.print(String(CounterB&0xFF));
-          */
-         /*
-         if (digitalRead(END_A0_PIN)) // Eingang ist HI, Schlitten nicht am Anschlag A0
-         {
-            //Serial.printf("Anschlag Motor A OFF\n");
-         }
-          else
-          {
-             Serial.printf("Anschlag Motor A ON\n");
-          }
-
-         if (digitalRead(END_B0_PIN)) // Eingang ist HI, Schlitten nicht am Anschlag A0
-         {
-            //Serial.printf("Anschlag Motor B OFF\n");
-         }
-         else
-         {
-            Serial.printf("Anschlag Motor B ON\n");
-         }
-*/
-
       }
       else
       {
@@ -1877,7 +1878,8 @@ void loop()
       sincelaststep = 0;
        
       tastenwert = readTastatur(); //adc->adc0->analogRead(TASTATURPIN);
-      //tastenwert = 99;
+      tastenwert = 0;
+
       oldTaste = Taste;
       
       Taste = Tastenwahl(tastenwert);
@@ -1889,9 +1891,10 @@ void loop()
    }
  
    ////#pragma mark start_(usb
+   return;
+   //r = usb_rawhid_recv((void *)buffer, 0); // 1.5us
+   r = RawHID.recv(buffer, 0); // 1.5us
    
-   r = usb_rawhid_recv((void *)buffer, 0); // 1.5us
-
    if (r > 0) //
    {
       //OSZIB_LO();
@@ -2471,7 +2474,7 @@ void loop()
          // MARK: F0
       case 0xF0: // cncstatus fuer go_home setzen
       {
-tastaturstatus = 0 ;
+         tastaturstatus = 0 ;
          Serial.printf("F0 home \n");
          //  gohome();
          //  break;
@@ -2913,7 +2916,7 @@ tastaturstatus = 0 ;
                {
                   ramptimerintervall -= RAMPSCHRITT;
 
-                  delayTimer.update(ramptimerintervall);
+                  //delayTimer.update(ramptimerintervall);
                   // rampbreite++;
                }
             }
@@ -3096,8 +3099,8 @@ tastaturstatus = 0 ;
                   sendbuffer[6] = ladeposition;
                   // sendbuffer[7]=(ladeposition & 0xFF00) >> 8;
                   sendbuffer[22] = cncstatus;
-                  usb_rawhid_send((void *)sendbuffer, 0);
-                  // uint8_t senderfolg = RawHID.send(sendbuffer, 10);
+                  //usb_rawhid_send((void *)sendbuffer, 0);
+                  uint8_t senderfolg = RawHID.send(sendbuffer, 10);
                   tastaturstatus = 0xF0 ;
                   taskstatus &= ~(1<<TASK);
                   // sei();
@@ -3290,7 +3293,7 @@ tastaturstatus = 0 ;
                   homestatus |= (1 << COUNT_C);
                }
 
-               cli()
+               cli();
                    // Serial.printf("\nMotor C endpos > BD\n");
                    ringbufferstatus = 0;
                // home:
@@ -3361,8 +3364,8 @@ tastaturstatus = 0 ;
 
                      //      sendbuffer[7]=(ladeposition & 0xFF00) >> 8;
                      sendbuffer[0] = 0xA1;
-                     usb_rawhid_send((void *)sendbuffer, 0);
-                     //uint8_t senderfolg = RawHID.send(sendbuffer, 10);
+                     //usb_rawhid_send((void *)sendbuffer, 0);
+                     uint8_t senderfolg = RawHID.send(sendbuffer, 10);
                      taskstatus &= ~(1<<TASK);
                   }
 
