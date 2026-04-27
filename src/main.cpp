@@ -33,6 +33,7 @@
 
 
 #include "Arduino.h"
+
 #include <stdint.h>
 
 #include <SD.h>
@@ -47,6 +48,7 @@
 // von VS_RobotAuto_T
 //#include <Adafruit_GFX.h>
 //#include <Adafruit_SSD1306.h>
+#include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
 #include "main.h"
 #include "display.h"
@@ -55,6 +57,7 @@
  #include "lcd.h"
 #include "settings.h"
 
+//#include "usb_rawhid.h"
 //#include <ADC.h>
 // https://registry.platformio.org/libraries/adafruit/Adafruit%20SSD1327/examples/ssd1327_test/ssd1327_test.ino
 
@@ -142,7 +145,7 @@ uint16_t cncdelaycounter = 0;
 // Prototypes
 
 uint8_t buffer[USB_DATENBREITE] = {};
-static volatile uint8_t sendbuffer[USB_DATENBREITE] = {};
+uint8_t sendbuffer[USB_DATENBREITE] = {};
 
 // Ringbuffer
 uint8_t CNCDaten[RINGBUFFERTIEFE][USB_DATENBREITE];
@@ -1005,7 +1008,9 @@ void AnschlagVonMotor(const uint8_t motor)
             Serial.printf("*** Anschlag Home motor %d code: %d cncstatus: %d\n", motor, sendbuffer[0], cncstatus);
 
             Serial.printf("E\n");
-            uint8_t senderfolg = usb_rawhid_send((void *)sendbuffer, 10);
+            //uint8_t senderfolg = usb_rawhid_send((void *)sendbuffer, 10);
+            uint8_t senderfolg = RawHID.send(sendbuffer, 10);
+
              Serial.printf("*** Anschlag Home motor senderfolg: %d\n",senderfolg);
             for (uint8_t i = 0; i < 32; i++) // 5 us ohne printf, 10ms mit printf
             {
@@ -1477,7 +1482,8 @@ void stopCNC(void)
 
 
          sendbuffer[0] = 0xF2;
-                  usb_rawhid_send((void*)sendbuffer, 0);
+         uint8_t senderfolg = RawHID.send(sendbuffer, 10);
+         //usb_rawhid_send((void*)sendbuffer, 0);
          sendbuffer[0] = 0x00;
          Serial.printf("F1 reset end\n");
       }
@@ -1815,6 +1821,7 @@ void loop()
          sendbuffer[58] = Taste;
 
          //uint8_t senderfolg = usb_rawhid_send((void *)sendbuffer, 10);
+         //uint8_t senderfolg = RawHID.send(sendbuffer, 10);
       }
          // OLED
          //Serial.printf("LED ON\n");
@@ -1971,6 +1978,7 @@ void loop()
          sendbuffer[11] = (endposition & 0x00FF);
 
          sendbuffer[0] = 0xB2;
+         // uint8_t senderfolg = RawHID.send(sendbuffer, 10);
          //          usb_rawhid_send((void*)sendbuffer, 0);
       }
       break;
@@ -2037,6 +2045,7 @@ void loop()
             sendbuffer[0] = 0xD1;
             //               Serial.printf("------------------------------------->  first abschnitt, endposition: %d\n",endposition);
             // Abschnitt 0 melden
+            // uint8_t senderfolg = RawHID.send(sendbuffer, 10);
             //              usb_rawhid_send((void*)sendbuffer, 0);
 
             //    startTimer2();
@@ -2115,7 +2124,8 @@ void loop()
          digitalWriteFast(MD_EN,HIGH);
          */
          sendbuffer[0] = 0xB6;
-         usb_rawhid_send((void *)sendbuffer, 0);
+         //usb_rawhid_send((void *)sendbuffer, 0);
+         uint8_t senderfolg = RawHID.send(sendbuffer, 10);
          uint8_t i = 0;
          for (i = 0; i < 33; i++) // 5 us ohne printf, 10ms mit printf
          {
@@ -2233,7 +2243,8 @@ void loop()
          }
          taskstatus |= (1<<TASK);
          sendbuffer[0] = 0xC2;
-         uint8_t senderfolg = usb_rawhid_send((void *)sendbuffer, 10);
+         //uint8_t senderfolg = usb_rawhid_send((void *)sendbuffer, 10);
+         uint8_t senderfolg = RawHID.send(sendbuffer, 10);
          startTimer2();
 
       }
@@ -2280,7 +2291,8 @@ void loop()
         
          taskstatus &= ~(1<<TASK);
          sendbuffer[0] = 0xC2;
-         uint8_t senderfolg = usb_rawhid_send((void *)sendbuffer, 10);
+         //uint8_t senderfolg = usb_rawhid_send((void *)sendbuffer, 10);
+         uint8_t senderfolg = RawHID.send(sendbuffer, 10);
 
       }
       break;
@@ -2308,8 +2320,9 @@ void loop()
          // sendbuffer[7]=(ladeposition & 0xFF00) >> 8;
          sendbuffer[22] = cncstatus;
 
-         usb_rawhid_send((void *)sendbuffer, 0);
-
+         //usb_rawhid_send((void *)sendbuffer, 0);
+         uint8_t senderfolg = RawHID.send(sendbuffer, 10);
+   
          sendbuffer[0] = 0x00;
          sendbuffer[5] = 0x00;
          sendbuffer[6] = 0x00;
@@ -2363,6 +2376,7 @@ void loop()
 
          sendbuffer[0] = 0xE3;
          //          usb_rawhid_send((void*)sendbuffer, 0);
+         //uint8_t senderfolg = RawHID.send(sendbuffer, 10);
          // sendbuffer[0]=0x00;
          // sendbuffer[5]=0x00;
          // sendbuffer[8]=0x00;
@@ -2393,6 +2407,7 @@ void loop()
 
          sendbuffer[0] = 0xE5;
          //          usb_rawhid_send((void*)sendbuffer, 0);
+         // uint8_t senderfolg = RawHID.send(sendbuffer, 10);
          // sendbuffer[0]=0x00;
          // sendbuffer[5]=0x00;
          // sendbuffer[6]=0x00;
@@ -2446,7 +2461,8 @@ void loop()
 
 
          sendbuffer[0] = 0xF2;
-                  usb_rawhid_send((void*)sendbuffer, 0);
+                  //usb_rawhid_send((void*)sendbuffer, 0);
+                  uint8_t senderfolg = RawHID.send(sendbuffer, 10);
          sendbuffer[0] = 0x00;
          Serial.printf("F1 reset end\n");
       }
@@ -2507,6 +2523,7 @@ tastaturstatus = 0 ;
 
          // F0 melden
          //            usb_rawhid_send((void*)sendbuffer, 0);
+         // uint8_t senderfolg = RawHID.send(sendbuffer, 10);
 
          sei();
       }
@@ -2555,6 +2572,7 @@ tastaturstatus = 0 ;
          // Serial.printf("****************************************\n");
 
          //              usb_rawhid_send((void*)sendbuffer, 0); // nicht jedes Paket melden
+         // uint8_t senderfolg = RawHID.send(sendbuffer, 10);
 
          if (abschnittnummer == 0)
          {
@@ -2591,6 +2609,7 @@ tastaturstatus = 0 ;
             sendbuffer[0] = 0xD1;
 
             //         usb_rawhid_send((void*)sendbuffer, 0);
+            // uint8_t senderfolg = RawHID.send(sendbuffer, 10);
             startTimer2();
             sei();
          }
@@ -2639,7 +2658,8 @@ tastaturstatus = 0 ;
                sendbuffer[5] = abschnittnummer;
                sendbuffer[6] = ladeposition;
                sendbuffer[0] = 0xAF;
-               usb_rawhid_send((void *)sendbuffer, 0);
+               //usb_rawhid_send((void *)sendbuffer, 0);
+               uint8_t senderfolg = RawHID.send(sendbuffer, 0);
                tastaturstatus = 0xF0 ;
                sei();
             }
@@ -3012,7 +3032,8 @@ tastaturstatus = 0 ;
                //    sendbuffer[7]=(ladeposition & 0xFF00) >> 8;
                sendbuffer[22] = cncstatus;
                // Serial.printf("*** *** *** *** *** BD 1\n");
-               usb_rawhid_send((void *)sendbuffer, 0);
+               //usb_rawhid_send((void *)sendbuffer, 0);
+               uint8_t senderfolg = RawHID.send(sendbuffer, 0);
                ladeposition = 0;
 
                analogWrite(DC_PWM, 0);
@@ -3076,6 +3097,7 @@ tastaturstatus = 0 ;
                   // sendbuffer[7]=(ladeposition & 0xFF00) >> 8;
                   sendbuffer[22] = cncstatus;
                   usb_rawhid_send((void *)sendbuffer, 0);
+                  // uint8_t senderfolg = RawHID.send(sendbuffer, 10);
                   tastaturstatus = 0xF0 ;
                   taskstatus &= ~(1<<TASK);
                   // sei();
@@ -3091,7 +3113,8 @@ tastaturstatus = 0 ;
                   sendbuffer[22] = cncstatus;
                   // TODO : ev.  A0 setzen
                   sendbuffer[0] = 0xA1;
-                  usb_rawhid_send((void *)sendbuffer, 0);
+                  //usb_rawhid_send((void *)sendbuffer, 0);
+                  uint8_t senderfolg = RawHID.send(sendbuffer, 0);
                   OSZI_D_HI();
                }
 
@@ -3286,7 +3309,8 @@ tastaturstatus = 0 ;
                digitalWriteFast(MB_EN, HIGH);
                // Serial.printf("*** *** *** *** BD 2\n");
                //
-               usb_rawhid_send((void *)sendbuffer, 0);
+               //usb_rawhid_send((void *)sendbuffer, 0);
+               uint8_t senderfolg = RawHID.send(sendbuffer, 10);
                ringbufferstatus = 0;
 
                ladeposition = 0;
@@ -3322,7 +3346,8 @@ tastaturstatus = 0 ;
                      sendbuffer[5] = abschnittnummer;
                      sendbuffer[6] = ladeposition;
                      sendbuffer[22] = cncstatus;
-                     usb_rawhid_send((void *)sendbuffer, 0);
+                     uint8_t senderfolg = RawHID.send(sendbuffer, 0);
+                     //usb_rawhid_send((void *)sendbuffer, 0);
                      // sei();
                   }
                   else
@@ -3337,6 +3362,7 @@ tastaturstatus = 0 ;
                      //      sendbuffer[7]=(ladeposition & 0xFF00) >> 8;
                      sendbuffer[0] = 0xA1;
                      usb_rawhid_send((void *)sendbuffer, 0);
+                     //uint8_t senderfolg = RawHID.send(sendbuffer, 10);
                      taskstatus &= ~(1<<TASK);
                   }
 
