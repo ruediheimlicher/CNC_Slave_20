@@ -2,24 +2,7 @@
 
 ///
 /// @mainpage   Stepper20
-///
-/// @details   Description of the project
-/// @n
-/// @n
-/// @n @a      Developed with [embedXcode+](https://embedXcode.weebly.com)
-///
-/// @author      Ruedi Heimlicher
-/// @author      Ruedi Heimlicher
-/// @date      06.05.2020 21:02
-/// @version   n
-///
-/// @copyright   (c) Ruedi Heimlicher, 2020
-/// @copyright   GNU General Public Licence
-///
-/// @see      ReadMe.txt for references
-///
 
-///
 /// @author      Ruedi Heimlicher
 /// @date      06.05.2020 21:02
 /// @version   <#version#>
@@ -43,11 +26,18 @@
 
 //#include <LiquidCrystal_I2C.h> // auch in Makefile angeben!!!
 
+#include <string.h>
+#include <avr/io.h>
+#include <util/delay.h>
+#include <avr/interrupt.h>
+#include <avr/pgmspace.h>
+//#include <avr/sleep.h>
+#include <avr/eeprom.h>
+#include <inttypes.h>
+#include <avr/wdt.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-
-// von VS_RobotAuto_T
-//#include <Adafruit_GFX.h>
-//#include <Adafruit_SSD1306.h>
 #include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
 #include "main.h"
@@ -114,7 +104,7 @@ LiquidCrystal_I2C lcd(0x27,20,4);
 
 // Define variables and constants
 uint8_t loopLED;
-#define USB_DATENBREITE 64
+#define USB_DATENBREITE 32
 
 #define TEST 1
 
@@ -1538,8 +1528,10 @@ void setup()
    adc->adc0->setSamplingSpeed(ADC_SAMPLING_SPEED::HIGH_SPEED);
    */
    pinMode(DC_PWM, OUTPUT);
+   pinMode(LED_BUILTIN, OUTPUT);
    // digitalWriteFast(DC_PWM, HIGH); // OFF
    digitalWriteFast(DC_PWM, 1);
+   digitalWriteFast(LED_BUILTIN, 1);
 
    //   pinMode(STROM, OUTPUT);
    //   digitalWriteFast(STROM, LOW); // LO, OFF
@@ -1610,7 +1602,7 @@ void setup()
 
   // https://forum.pjrc.com/index.php?threads/teensy-3-2-ssd1306-hardware-spi.70260/
   //if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) 
-   
+   /*
    grove_lcd.begin(16, 2);
     
    grove_lcd.setRGB(colorR, colorG, colorB);
@@ -1618,7 +1610,7 @@ void setup()
     // Print a message to the LCD.
     grove_lcd.print("grove setup");  
   
-
+   */
 /*
 // Waveshare OLED
  if ( ! OLED_display.begin(0x3D) ) {
@@ -1697,9 +1689,10 @@ void loop()
 {
    //   Serial.println(steps);
    //   threads.delay(1000);
+   digitalWriteFast(OSZI_PULS_A, !digitalRead(OSZI_PULS_A)); // toggle OSZI_PULS_A
 
 // von Mill35
-
+   /*
    if (sincelastimpuls > pfeilimpulsdauer)
    {
    
@@ -1821,13 +1814,15 @@ void loop()
             
          }
       } // if (pfeiltastecode)
-   OSZIB_HI();
+      OSZIB_HI();
+      
    }// if (sincelastimpuls
-
+   */
 
 
    if (sinceblink > 1000)
    {
+      //digitalWriteFast(LED_BUILTIN, !digitalReadFast(LED_BUILTIN)); // toggle LED_BUILTIN
       //OSZIA_LO();
 
       // PWM = 55;
@@ -1872,6 +1867,7 @@ void loop()
       //      lcd.print(String(parallelcounter));
    } // sinceblink
 
+   /*
    if (sincelaststep > 500)
    {
       // Serial.printf("sincelaststep\n");
@@ -1889,6 +1885,7 @@ void loop()
 
 
    }
+   */
  
    ////#pragma mark start_(usb
    return;

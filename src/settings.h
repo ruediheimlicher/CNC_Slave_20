@@ -13,8 +13,8 @@
 
 #define TIMER0_STARTWERT   0x40
 
-#define LOOPLEDDDR          DDRF    //DDRD
-#define LOOPLEDPORT         PORTF   //PORTD
+#define LOOPLEDDDR          DDRD
+#define LOOPLEDPORT         PORTD
 #define LOOPLED             6       //6 
 
 #define TASTENDDR           DDRF
